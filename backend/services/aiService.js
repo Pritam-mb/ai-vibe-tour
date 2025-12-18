@@ -211,11 +211,9 @@ Return ONLY the JSON array, no markdown, no explanations.
 `
   
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt
-    })
-    let text = response.text
+    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const response = await model.generateContent(prompt)
+    let text = response.response.text()
     
     // Clean up the response - remove markdown code blocks if present
     if (text) {
@@ -272,11 +270,9 @@ Return ONLY the JSON object, no other text.
 `
   
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt
-    })
-    const text = response.text
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" })
+    const response = await model.generateContent(prompt)
+    const text = response.response.text()
     
     if (text) {
       const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -322,11 +318,9 @@ Return ONLY the JSON object, no other text.
 `
   
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt
-    })
-    const text = response.text
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" })
+    const response = await model.generateContent(prompt)
+    const text = response.response.text()
     
     if (text) {
       const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -369,11 +363,9 @@ export async function generateText(prompt, context = '') {
   const fullPrompt = context ? `${context}\n\n${prompt}` : prompt
   
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: fullPrompt
-    })
-    return response.text
+    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const response = await model.generateContent(fullPrompt)
+    return response.response.text()
   } catch (error) {
     console.error('Error generating text:', error)
     return 'Sorry, I encountered an error. Please try again.'

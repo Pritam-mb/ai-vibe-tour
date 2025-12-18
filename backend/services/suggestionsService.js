@@ -50,7 +50,7 @@ Return a JSON array with this structure:
 BE SPECIFIC - use actual place names, times, and details. Keep it practical and immediately actionable.
 `
 
-    const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
@@ -106,7 +106,7 @@ Return JSON array:
 ]
 `
 
-    const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
