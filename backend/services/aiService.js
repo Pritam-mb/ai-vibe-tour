@@ -1,11 +1,11 @@
-import { GoogleGenAI } from "@google/genai"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import dotenv from 'dotenv'
 import { db } from '../server.js'
 
 dotenv.config()
 
 // Initialize the Gemini client with API key
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 // Fetch real registered guides from database
 async function fetchRegisteredGuides(destination) {

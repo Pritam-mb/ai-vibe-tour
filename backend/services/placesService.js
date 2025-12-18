@@ -1,11 +1,11 @@
 import axios from 'axios'
-import { GoogleGenAI } from "@google/genai"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GEMINI_API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 // Search for places using Google Places API
 export async function searchPlaces(query, location) {

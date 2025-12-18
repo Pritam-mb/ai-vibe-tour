@@ -1,9 +1,9 @@
-import { GoogleGenAI } from "@google/genai"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 // Generate smart suggestions based on location, time, and trip context
 export async function generateSmartSuggestions(context) {
