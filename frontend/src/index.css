@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Premium SaaS Design Tokens */
+    --primary: #0EA5E9;
+    --primary-hover: #0284C7;
+    --primary-subtle: rgba(14, 165, 233, 0.12);
+    --secondary: #A855F7;
+    --secondary-subtle: rgba(168, 85, 247, 0.12);
+    --accent: #22D3EE;
+    --success: #22C55E;
+    --warning: #EAB308;
+    --error: #EF4444;
+
+    /* Rich dark backgrounds with depth */
+    --bg-base: #09090B;
+    --bg-dark: #0C0C0F;
+    --bg-card: #18181B;
+    --bg-elevated: #27272A;
+    --bg-subtle: #1C1C1F;
+    --bg-gradient-start: #09090B;
+    --bg-gradient-end: #18181B;
+
+    /* Crisp text hierarchy */
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+
+    /* Clean borders */
+    --border-color: #27272A;
+    --border-hover: #3F3F46;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+
+    /* Accent aliases */
+    --accent-teal: var(--accent);
+    --accent-purple: var(--secondary);
+    --accent-gold: var(--warning);
+    --accent-coral: #F97316;
+
+    /* Legacy compatibility */
+    --background: var(--bg-base);
+    --foreground: var(--text-primary);
+    --card: var(--bg-card);
+    --card-hover: var(--bg-elevated);
+    --border: var(--border-color);
+    --ai-color: var(--secondary);
+    --pending-color: var(--warning);
+    --approved-color: var(--success);
+    --rejected-color: var(--error);
+  }
+
+  html, body {
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-2.5 rounded-lg font-semibold transition-all duration-200;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2.5 rounded-lg font-semibold transition-all duration-200;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-hover);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    @apply rounded-xl p-6 transition-all duration-200;
+  }
+
+  .card:hover {
+    background: var(--bg-subtle);
+    border-color: var(--border-hover);
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-lg transition-all duration-150;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 15px;
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+  }
+
+  .input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-hero {
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(14, 165, 233, 0.15), transparent),
+                linear-gradient(180deg, var(--bg-base) 0%, var(--bg-dark) 100%);
+  }
+
+  .gradient-card {
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+  }
+
+  .floating-nav {
+    @apply fixed top-4 left-1/2 -translate-x-1/2 z-50;
+    max-width: calc(100% - 32px);
+    width: 1200px;
+    height: 64px;
+    background: rgba(9, 9, 11, 0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 24px rgba(168, 85, 247, 0.5);
+    }
+  }
+
+  .analyzing {
+    border-color: rgba(168, 85, 247, 0.5);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Leaflet Map Dark Theme */
+  .leaflet-container {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg-base);
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    color: var(--text-primary);
+  }
+
+  .leaflet-popup-tip {
+    background: var(--bg-card);
+  }
+
+  .leaflet-popup-content {
+    margin: 12px;
+    color: var(--text-primary);
+  }
+
+  .custom-marker {
+    background: transparent;
+    border: none;
+  }
+
+  .leaflet-control-zoom a {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: var(--bg-elevated) !important;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(9, 9, 11, 0.9) !important;
+    color: var(--text-muted) !important;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .leaflet-control-attribution a {
+    color: var(--primary) !important;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+  }
+}

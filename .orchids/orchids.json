@@ -1,0 +1,8 @@
+{
+  "projectId": "1d31f4eb-d1f5-4ccd-ba60-6cccdbbbc2c1",
+  "createdAt": 1765992500880,
+  "startupCommands": [
+    "cd C:\\Users\\Soumya\\Desktop\\VibeHack\\vibe-trip\\frontend; npm run dev",
+    "cd C:\\Users\\Soumya\\Desktop\\VibeHack\\vibe-trip\\backend; npm run dev"
+  ]
+}
