@@ -1,7 +1,6 @@
 {
-  "installCommand": "npm install --force",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd frontend && rm -rf node_modules package-lock.json && npm install --force && npm run build",
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/(.*)",
