@@ -135,7 +135,7 @@ Return ONLY the valid JSON array, no markdown, no explanations.
       messages: [{ role: 'user', content: prompt }],
       model: 'llama-3.1-8b-instant',
       temperature: 0.7,
-      max_tokens: 8000,
+      max_tokens: 5000,
       response_format: { type: 'json_object' } // Help enforce json, though groq json object needs an object wrapper. 
       // Actually groq requires the prompt to specify "JSON object". 
       // We asked for an array. Let's wrap our expected output in an object if we use json_object.
