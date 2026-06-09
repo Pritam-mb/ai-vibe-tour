@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Check, X, Mail, Phone, MapPin, Award, Clock } from 'lucide-react'
 
+const API_URL = import.meta.env.VITE_API_URL || '/api'
+
 function AdminGuides() {
   const [guides, setGuides] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,7 +15,7 @@ function AdminGuides() {
   const loadGuides = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:5003/api/guides?all=true')
+      const response = await fetch(`${API_URL}/guides?all=true`)
       const data = await response.json()
       
       let filtered = data
@@ -33,7 +35,7 @@ function AdminGuides() {
 
   const handleApprove = async (guideId) => {
     try {
-      const response = await fetch(`http://localhost:5003/api/guides/${guideId}/verify`, {
+      const response = await fetch(`${API_URL}/guides/${guideId}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ verified: true })
@@ -51,7 +53,7 @@ function AdminGuides() {
     if (!confirm('Are you sure you want to reject this guide application?')) return
 
     try {
-      const response = await fetch(`http://localhost:5003/api/guides/${guideId}`, {
+      const response = await fetch(`${API_URL}/guides/${guideId}`, {
         method: 'DELETE'
       })
 

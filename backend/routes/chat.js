@@ -1,18 +1,16 @@
 import express from 'express'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Groq from 'groq-sdk'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 const router = express.Router()
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 // AI Chat endpoint for trip suggestions
 router.post('/chat', async (req, res) => {
   try {
     const { message, context } = req.body
-
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
     const prompt = `
 You are an AI travel assistant helping a user plan their trip. 
@@ -49,9 +47,12 @@ Respond in JSON format:
 Be conversational, enthusiastic, and helpful. If the request is unclear, ask for clarification.
 `
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+    })
+    
+    const text = chatCompletion.choices[0]?.message?.content || ''
 
     // Try to parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)

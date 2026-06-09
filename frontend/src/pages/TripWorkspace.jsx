@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, Users } from 'lucide-react'
+import { Calendar, Users, Plane, Train, ExternalLink } from 'lucide-react'
 import { tripService } from '../services/tripService'
 import ItineraryView from '../components/trip/ItineraryView'
 import PendingRequests from '../components/trip/PendingRequests'
@@ -96,15 +96,61 @@ function TripWorkspace() {
                 </div>
               </div>
 
+              {/* Plan Travel Button */}
+              <button
+                onClick={() => window.location.href = `/travel-plan/${tripId}`}
+                className="w-full mt-4 px-4 py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)' }}
+              >
+                <Plane className="h-4 w-4" /> Plan Travel
+              </button>
+
               {/* Start Journey Button */}
               <button
                 onClick={() => window.location.href = `/journey/${tripId}`}
-                className="w-full mt-4 px-4 py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                className="w-full mt-2 px-4 py-2.5 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
                 style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}
               >
                 <span className="text-base">🚀</span>
                 Start Journey
               </button>
+
+              {/* Travel Route Card */}
+              {(trip.departureCity || trip.destination) && (
+                <div className="mt-4 rounded-xl p-3" style={{ background: 'linear-gradient(135deg,rgba(245,158,11,0.1),rgba(251,191,36,0.05))', border: '1px solid rgba(245,158,11,0.2)' }}>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--warning)' }}>✈️ Travel Route</p>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <div className="text-center flex-1">
+                      <p className="text-lg">🛫</p>
+                      <p className="text-xs truncate font-medium" style={{ color: 'var(--text-primary)' }}>{trip.departureCity || 'Origin'}</p>
+                    </div>
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <div style={{ color: 'var(--warning)', fontSize: 16 }}>✈</div>
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>→</div>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className="text-lg">🏙️</p>
+                      <p className="text-xs truncate font-medium" style={{ color: 'var(--text-primary)' }}>{trip.destination}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <a
+                      href={`https://www.google.com/travel/flights?q=flights+from+${encodeURIComponent(trip.departureCity || '')}+to+${encodeURIComponent(trip.destination)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.02]"
+                      style={{ background: 'rgba(59,130,246,0.12)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.18)' }}>
+                      <Plane className="h-3 w-3" /> Book Flight <ExternalLink className="h-3 w-3 ml-auto" />
+                    </a>
+                    <a
+                      href={`https://www.ixigo.com/search/result/train?sourceCity=${encodeURIComponent(trip.departureCity || '')}&destinationCity=${encodeURIComponent(trip.destination)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.02]"
+                      style={{ background: 'rgba(168,85,247,0.12)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.18)' }}>
+                      <Train className="h-3 w-3" /> Book Train <ExternalLink className="h-3 w-3 ml-auto" />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}

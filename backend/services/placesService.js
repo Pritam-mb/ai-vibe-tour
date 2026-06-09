@@ -1,11 +1,11 @@
 import axios from 'axios'
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import Groq from 'groq-sdk'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GEMINI_API_KEY
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 // Search for places using Google Places API
 export async function searchPlaces(query, location) {
@@ -135,18 +135,14 @@ Return a JSON object with this structure:
 }
 `
 
-    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      }
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_completion_tokens: 2048,
     })
 
-    const response = result.response.text()
+    const response = chatCompletion.choices[0]?.message?.content || ''
     const jsonMatch = response.match(/\{[\s\S]*\}/)
     
     if (jsonMatch) {

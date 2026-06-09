@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { UserPlus, Award, MapPin, DollarSign, Languages, Briefcase, Check } from 'lucide-react'
 
+const API_URL = import.meta.env.VITE_API_URL || '/api'
+
 function GuideRegistration() {
   const [formData, setFormData] = useState({
     name: '',
@@ -48,7 +50,7 @@ function GuideRegistration() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5003/api/guides/register', {
+      const response = await fetch(`${API_URL}/guides/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

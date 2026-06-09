@@ -1,6 +1,5 @@
 // Journey tracking service for live path recording and ticket booking recommendations
-import { db } from '../config/firebase'
-import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 export const journeyTrackingService = {
   // Start tracking journey path
@@ -36,9 +35,9 @@ export const journeyTrackingService = {
       journeyData.path.push(pathPoint)
       localStorage.setItem(journeyKey, JSON.stringify(journeyData))
 
-      // Update Firebase every 10 points to avoid too many writes
+      // Update backend every 10 points to avoid too many writes
       if (journeyData.path.length % 10 === 0) {
-        await this.savePathToFirebase(tripId, journeyData.path)
+        await this.savePathToBackend(tripId, journeyData.userId || 'anonymous', journeyData.path)
       }
 
       return pathPoint
@@ -47,21 +46,22 @@ export const journeyTrackingService = {
     }
   },
 
-  // Save journey path to Firebase
-  async savePathToFirebase(tripId, path) {
+  // Save journey path to backend
+  async savePathToBackend(tripId, userId, path) {
     try {
-      const tripRef = doc(db, 'trips', tripId)
-      const tripDoc = await getDoc(tripRef)
-      const tripData = tripDoc.data()
-
-      await updateDoc(tripRef, {
-        journeyPaths: arrayUnion({
-          timestamp: new Date().toISOString(),
+      const response = await fetch(`${API_URL}/trips/${tripId}/journey/save-path`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId,
           path: path.slice(-100) // Keep last 100 points
         })
-      })
+      });
+      if (!response.ok) throw new Error('Failed to save path to backend');
     } catch (error) {
-      console.error('Error saving path to Firebase:', error)
+      console.error('Error saving path to Backend:', error)
     }
   },
 
@@ -72,7 +72,7 @@ export const journeyTrackingService = {
       const journeyData = JSON.parse(localStorage.getItem(journeyKey) || '{}')
       
       if (journeyData.path && journeyData.path.length > 0) {
-        await this.savePathToFirebase(tripId, journeyData.path)
+        await this.savePathToBackend(tripId, journeyData.userId || 'anonymous', journeyData.path)
       }
 
       journeyData.isActive = false

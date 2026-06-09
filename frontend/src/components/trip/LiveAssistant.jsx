@@ -3,6 +3,8 @@ import { Sparkles, Clock, MapPin, DollarSign, Navigation, Plane, AlertCircle, Ex
 import { locationService } from '../../services/locationService'
 import { journeyTrackingService } from '../../services/journeyTrackingService'
 
+const API_URL = import.meta.env.VITE_API_URL || '/api'
+
 function LiveAssistant({ trip }) {
   const [suggestions, setSuggestions] = useState([])
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -101,7 +103,7 @@ function LiveAssistant({ trip }) {
         }, 0) || 0)
       }, 0) || 0
 
-      const response = await fetch('http://localhost:5003/api/ai/suggestions', {
+      const response = await fetch(`${API_URL}/ai/suggestions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

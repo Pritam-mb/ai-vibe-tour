@@ -1,66 +1,30 @@
 import express from 'express'
-import { db } from '../server.js'
+import Guide from '../models/Guide.js'
 
 const router = express.Router()
 
 // Register as a tour guide
 router.post('/register', async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      specialty,
-      languages,
-      pricePerDay,
-      experience,
-      bio,
-      destination,
-      certifications,
-      availability
-    } = req.body
+    const { name, email, phone, specialty, languages, pricePerDay, experience, bio, destination, certifications, availability } = req.body
 
-    // Validate required fields
     if (!name || !email || !specialty || !destination || !pricePerDay) {
       return res.status(400).json({ error: 'Missing required fields' })
     }
 
-    // Check if guide already exists
-    const existingGuide = await db.collection('guides')
-      .where('email', '==', email)
-      .get()
-
-    if (!existingGuide.empty) {
+    const existingGuide = await Guide.findOne({ email })
+    if (existingGuide) {
       return res.status(400).json({ error: 'Guide already registered with this email' })
     }
 
-    // Create new guide
-    const guideData = {
-      name,
-      email,
-      phone: phone || '',
-      specialty,
-      languages: languages || ['English'],
-      pricePerDay: Number(pricePerDay),
-      experience: experience || 0,
-      bio: bio || '',
-      destination,
-      certifications: certifications || [],
-      availability: availability || true,
-      rating: 0,
-      totalReviews: 0,
-      verified: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-
-    const docRef = await db.collection('guides').add(guideData)
-
-    res.status(201).json({
-      success: true,
-      guideId: docRef.id,
-      message: 'Guide registered successfully. Verification pending.'
+    const guide = new Guide({
+      name, email, phone, specialty, languages: languages || ['English'], pricePerDay: Number(pricePerDay),
+      experience: experience || 0, bio: bio || '', destination, certifications: certifications || [],
+      availability: availability !== undefined ? availability : true
     })
+    await guide.save()
+
+    res.status(201).json({ success: true, guideId: guide._id, message: 'Guide registered successfully. Verification pending.' })
   } catch (error) {
     console.error('Error registering guide:', error)
     res.status(500).json({ error: 'Failed to register guide' })
@@ -71,40 +35,18 @@ router.post('/register', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { destination, specialty, minRating, maxPrice, all } = req.query
-
-    let query = db.collection('guides')
+    // Show all available guides by default (verified OR pending)
+    const filter = { availability: true }
     
-    // For admin panel, fetch all guides; otherwise only verified ones
-    if (!all) {
-      query = query.where('verified', '==', true)
-    }
-    
-    query = query.where('availability', '==', true)
+    // Only admins (all=true) can see unverified; marketplace shows everyone with availability
+    if (destination) filter.destination = { $regex: new RegExp(destination, 'i') }
+    if (specialty) filter.specialty = { $regex: new RegExp(specialty, 'i') }
+    if (minRating) filter.rating = { $gte: Number(minRating) }
+    if (maxPrice) filter.pricePerDay = { $lte: Number(maxPrice) }
 
-    if (destination) {
-      query = query.where('destination', '==', destination)
-    }
-
-    if (specialty) {
-      query = query.where('specialty', '==', specialty)
-    }
-
-    const snapshot = await query.get()
-    let guides = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-
-    // Filter by rating and price (Firestore doesn't support multiple inequality filters)
-    if (minRating) {
-      guides = guides.filter(g => g.rating >= Number(minRating))
-    }
-
-    if (maxPrice) {
-      guides = guides.filter(g => g.pricePerDay <= Number(maxPrice))
-    }
-
-    res.json(guides)
+    const guides = await Guide.find(filter).sort({ verified: -1, rating: -1 })
+    // Normalize _id -> id for frontend
+    res.json(guides.map(g => ({ id: g._id, ...g.toObject() })))
   } catch (error) {
     console.error('Error fetching guides:', error)
     res.status(500).json({ error: 'Failed to fetch guides' })
@@ -114,14 +56,9 @@ router.get('/', async (req, res) => {
 // Get guide by ID
 router.get('/:id', async (req, res) => {
   try {
-    const { id } = req.params
-    const doc = await db.collection('guides').doc(id).get()
-
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'Guide not found' })
-    }
-
-    res.json({ id: doc.id, ...doc.data() })
+    const guide = await Guide.findById(req.params.id)
+    if (!guide) return res.status(404).json({ error: 'Guide not found' })
+    res.json(guide)
   } catch (error) {
     console.error('Error fetching guide:', error)
     res.status(500).json({ error: 'Failed to fetch guide' })
@@ -131,18 +68,14 @@ router.get('/:id', async (req, res) => {
 // Update guide profile
 router.put('/:id', async (req, res) => {
   try {
-    const { id } = req.params
-    const updates = req.body
-
-    // Remove fields that shouldn't be updated directly
+    const updates = { ...req.body }
     delete updates.rating
     delete updates.totalReviews
     delete updates.createdAt
     delete updates.verified
 
-    updates.updatedAt = new Date().toISOString()
-
-    await db.collection('guides').doc(id).update(updates)
+    const guide = await Guide.findByIdAndUpdate(req.params.id, updates, { new: true })
+    if (!guide) return res.status(404).json({ error: 'Guide not found' })
 
     res.json({ success: true, message: 'Guide profile updated' })
   } catch (error) {
@@ -154,42 +87,19 @@ router.put('/:id', async (req, res) => {
 // Add review for guide
 router.post('/:id/review', async (req, res) => {
   try {
-    const { id } = req.params
     const { rating, comment, userId, userName } = req.body
+    if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: 'Rating must be between 1 and 5' })
 
-    if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'Rating must be between 1 and 5' })
-    }
+    const guide = await Guide.findById(req.params.id)
+    if (!guide) return res.status(404).json({ error: 'Guide not found' })
 
-    const guideRef = db.collection('guides').doc(id)
-    const guideDoc = await guideRef.get()
+    const newTotal = guide.totalReviews + 1
+    const newRating = ((guide.rating * guide.totalReviews) + rating) / newTotal
 
-    if (!guideDoc.exists) {
-      return res.status(404).json({ error: 'Guide not found' })
-    }
-
-    const guideData = guideDoc.data()
-    const currentRating = guideData.rating || 0
-    const currentTotal = guideData.totalReviews || 0
-
-    // Calculate new average rating
-    const newTotal = currentTotal + 1
-    const newRating = ((currentRating * currentTotal) + rating) / newTotal
-
-    // Add review
-    await db.collection('guides').doc(id).collection('reviews').add({
-      rating,
-      comment: comment || '',
-      userId,
-      userName,
-      createdAt: new Date().toISOString()
-    })
-
-    // Update guide rating
-    await guideRef.update({
-      rating: Number(newRating.toFixed(2)),
-      totalReviews: newTotal
-    })
+    guide.reviews.push({ rating, comment, userId, userName })
+    guide.rating = Number(newRating.toFixed(2))
+    guide.totalReviews = newTotal
+    await guide.save()
 
     res.json({ success: true, message: 'Review added successfully' })
   } catch (error) {
@@ -201,13 +111,9 @@ router.post('/:id/review', async (req, res) => {
 // Verify/Approve guide (Admin only)
 router.post('/:id/verify', async (req, res) => {
   try {
-    const { id } = req.params
-    const { verified } = req.body
-
-    await db.collection('guides').doc(id).update({
-      verified: verified !== undefined ? verified : true,
-      updatedAt: new Date().toISOString()
-    })
+    const verified = req.body.verified !== undefined ? req.body.verified : true
+    const guide = await Guide.findByIdAndUpdate(req.params.id, { verified })
+    if (!guide) return res.status(404).json({ error: 'Guide not found' })
 
     res.json({ success: true, message: 'Guide verification updated' })
   } catch (error) {
@@ -219,8 +125,7 @@ router.post('/:id/verify', async (req, res) => {
 // Delete guide (Admin only)
 router.delete('/:id', async (req, res) => {
   try {
-    const { id } = req.params
-    await db.collection('guides').doc(id).delete()
+    await Guide.findByIdAndDelete(req.params.id)
     res.json({ success: true, message: 'Guide deleted successfully' })
   } catch (error) {
     console.error('Error deleting guide:', error)

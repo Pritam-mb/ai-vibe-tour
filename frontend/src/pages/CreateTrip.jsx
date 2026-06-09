@@ -11,6 +11,7 @@ function CreateTrip() {
   const [formData, setFormData] = useState({
     name: '',
     destination: '',
+    departureCity: '',
     startDate: '',
     endDate: '',
     budget: '',
@@ -92,20 +93,35 @@ function CreateTrip() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-            <MapPin className="inline h-4 w-4 mr-1.5" style={{ color: 'var(--primary)' }} />
-            Destination
-          </label>
-          <input
-            type="text"
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-            placeholder="e.g., Paris, France"
-            className="input"
-            required
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+              <MapPin className="inline h-4 w-4 mr-1.5" style={{ color: 'var(--primary)' }} />
+              Destination
+            </label>
+            <input
+              type="text"
+              name="destination"
+              value={formData.destination}
+              onChange={handleChange}
+              placeholder="e.g., Paris, France"
+              className="input"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+              🛫 Traveling From
+            </label>
+            <input
+              type="text"
+              name="departureCity"
+              value={formData.departureCity}
+              onChange={handleChange}
+              placeholder="e.g., Mumbai, India"
+              className="input"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

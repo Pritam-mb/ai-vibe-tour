@@ -15,5 +15,11 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "overrides": {
+    "rollup": "3.29.4"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^8.0.0"
   }
 }

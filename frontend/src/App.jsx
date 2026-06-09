@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import CreateTrip from './pages/CreateTrip'
 import TripWorkspace from './pages/TripWorkspace'
 import JourneyMode from './pages/JourneyMode'
+import TravelPlanner from './pages/TravelPlanner'
 import GuidesMarketplace from './pages/GuidesMarketplace'
 import GuideRegistration from './pages/GuideRegistration'
 import AdminGuides from './pages/AdminGuides'
@@ -52,6 +53,7 @@ function App() {
             <Route path="solo-travelers" element={<SoloTravelers />} />
           </Route>
           <Route path="/journey/:tripId" element={<ProtectedRoute><JourneyMode /></ProtectedRoute>} />
+          <Route path="/travel-plan/:tripId" element={<ProtectedRoute><TravelPlanner /></ProtectedRoute>} />
         </Routes>
       </ErrorBoundary>
     </Router>

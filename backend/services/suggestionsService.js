@@ -1,9 +1,9 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import Groq from 'groq-sdk'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
 // Generate smart suggestions based on location, time, and trip context
 export async function generateSmartSuggestions(context) {
@@ -50,19 +50,14 @@ Return a JSON array with this structure:
 BE SPECIFIC - use actual place names, times, and details. Keep it practical and immediately actionable.
 `
 
-    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      }
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_completion_tokens: 2048,
     })
 
-    const response = result.response
-    const text = response.text()
+    const text = chatCompletion.choices[0]?.message?.content || ''
     
     // Extract JSON from response
     const jsonMatch = text.match(/\[[\s\S]*\]/)
@@ -106,17 +101,14 @@ Return JSON array:
 ]
 `
 
-    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' })
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 1024,
-      }
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.8,
+      max_completion_tokens: 1024,
     })
 
-    const response = result.response
-    const text = response.text()
+    const text = chatCompletion.choices[0]?.message?.content || ''
     
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (jsonMatch) {

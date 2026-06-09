@@ -1,16 +1,15 @@
 // Backend service for managing journey tracking data
-import { db } from '../server.js'
+import Trip from '../models/Trip.js'
 
 const journeyService = {
   // Save journey path to database
   async saveJourneyPath(tripId, userId, path) {
     try {
-      const tripRef = db.collection('trips').doc(tripId)
-      const tripDoc = await tripRef.get()
+      const trip = await Trip.findById(tripId)
       
-      if (!tripDoc.exists) {
+      if (!trip) {
         throw new Error('Trip not available')
-        }
+      }
 
       const journeyData = {
         userId,
@@ -19,9 +18,9 @@ const journeyService = {
         totalDistance: this.calculateTotalDistance(path)
       }
 
-      await tripRef.update({
-        journeyPaths: db.FieldValue.arrayUnion(journeyData)
-      })
+      trip.journeyPaths.push(journeyData)
+      trip.markModified('journeyPaths')
+      await trip.save()
 
       return { success: true, journeyData }
     } catch (error) {
@@ -33,15 +32,11 @@ const journeyService = {
   // Get journey paths for a trip
   async getJourneyPaths(tripId) {
     try {
-      const tripRef = db.collection('trips').doc(tripId)
-      const tripDoc = await tripRef.get()
-      
-      if (!tripDoc.exists) {
+      const trip = await Trip.findById(tripId)
+      if (!trip) {
         throw new Error('Trip not found')
       }
-
-      const tripData = tripDoc.data()
-      return tripData.journeyPaths || []
+      return trip.journeyPaths || []
     } catch (error) {
       console.error('Error getting journey paths:', error)
       throw error
